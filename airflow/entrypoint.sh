@@ -43,4 +43,17 @@ run_as_airflow airflow users create \
   --email admin@example.com \
   || true
 
+# Если активной модели ещё нет, триггерим обучение при старте Airflow.
+(
+  for i in $(seq 1 60); do
+    if run_as_airflow airflow dags list >/dev/null 2>&1; then
+      if [ ! -s /opt/airflow/models/latest.txt ]; then
+        run_as_airflow airflow dags trigger retrain_catboost >/dev/null 2>&1 || true
+      fi
+      break
+    fi
+    sleep 2
+  done
+) &
+
 exec /usr/sbin/runuser --preserve-environment --user airflow -- /entrypoint standalone

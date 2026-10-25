@@ -2,6 +2,7 @@ import logging
 import os
 import shutil
 import threading
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -24,18 +25,32 @@ def _model_path(version: str) -> Path:
 
 
 def ensure_bootstrap():
-    """Кладёт зашитую модель в общий каталог, пока DAG не опубликует новую."""
+    """Гарантирует наличие активной модели в общем каталоге.
+
+    Если есть зашитая (bundled) модель — копирует её как initial.
+    Иначе ждёт, пока Airflow обучит и опубликует первую модель,
+    вместо того чтобы падать и убивать контейнер.
+    """
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     latest = MODELS_DIR / "latest.txt"
-    if latest.exists() and latest.read_text(encoding="utf-8").strip():
-        return
     dest = _model_path("initial")
-    if not dest.exists():
-        if not BUNDLED_MODEL.exists():
-            raise FileNotFoundError(f"Нет исходной модели: {BUNDLED_MODEL}")
-        shutil.copyfile(BUNDLED_MODEL, dest)
-        logger.info("Скопирована исходная модель в %s", dest)
-    latest.write_text("initial\n", encoding="utf-8")
+    deadline = time.time() + 600  # ждём до 10 минут появления модели
+    while True:
+        if latest.exists() and latest.read_text(encoding="utf-8").strip():
+            return
+        # Если есть зашитая модель — используем её как initial.
+        if not dest.exists() and BUNDLED_MODEL.exists():
+            shutil.copyfile(BUNDLED_MODEL, dest)
+            latest.write_text("initial\n", encoding="utf-8")
+            logger.info("Скопирована исходная модель в %s", dest)
+            return
+        if time.time() >= deadline:
+            raise FileNotFoundError(
+                f"Модель не появилась в {MODELS_DIR} за 10 минут. "
+                f"Проверьте Airflow DAG retrain_catboost."
+            )
+        logger.info("Активной модели пока нет, ожидаю публикации из Airflow...")
+        time.sleep(5)
 
 
 def _read_latest_version() -> str:

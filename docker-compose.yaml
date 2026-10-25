@@ -74,6 +74,7 @@ services:
 
   fraud_detector:
     build: ./fraud_detector
+    restart: unless-stopped
     networks:
       - ml-scorer
     environment:

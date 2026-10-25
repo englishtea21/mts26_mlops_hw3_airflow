@@ -196,6 +196,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       TRAINING_DATA_DIR: /opt/airflow/training_data
       MODELS_DIR: /opt/airflow/models
+      DQ_REPORTS_DIR: /opt/airflow/dq_reports
       FRAUD_SRC: /opt/airflow/fraud_src
     volumes:
       - ./dags:/opt/airflow/dags
@@ -203,6 +204,7 @@ services:
       - ./fraud_detector/src:/opt/airflow/fraud_src:ro
       - training_data:/opt/airflow/training_data
       - model_registry:/opt/airflow/models
+      - dq_reports:/opt/airflow/dq_reports
       - airflow_state:/opt/airflow/airflow_state
     ports:
       - "8081:8080"
@@ -221,4 +223,5 @@ volumes:
   postgres_data:
   training_data:
   model_registry:
+  dq_reports:
   airflow_state:

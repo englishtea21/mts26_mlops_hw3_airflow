@@ -4,6 +4,7 @@ set -euo pipefail
 mkdir -p \
   /opt/airflow/models \
   /opt/airflow/training_data \
+  /opt/airflow/dq_reports \
   /opt/airflow/airflow_state \
   /opt/airflow/logs \
   /opt/airflow/dags
@@ -12,6 +13,7 @@ mkdir -p \
 chmod 777 \
   /opt/airflow/models \
   /opt/airflow/training_data \
+  /opt/airflow/dq_reports \
   /opt/airflow/airflow_state \
   /opt/airflow/logs
 

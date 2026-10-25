@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir \
     "scikit-learn==1.5.2" \
     "catboost==1.2.8" \
     "cloudpickle==2.2.1" \
+    "pendulum==3.0.0" \
     && python -c "import catboost, sklearn, pandas, pyarrow, numpy, cloudpickle; print(catboost.__version__, numpy.__version__, pandas.__version__, cloudpickle.__version__)"
 
 USER root

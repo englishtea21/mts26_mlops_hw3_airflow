@@ -42,7 +42,7 @@ def _read_latest_version() -> str:
     ensure_bootstrap()
     version = (MODELS_DIR / "latest.txt").read_text(encoding="utf-8").strip()
     if not version:
-        raise RuntimeError(f"Пустой указатель модели: {MODELS_DIR / 'latest.txt'}")
+        raise RuntimeError(f"Пустой указатель модели: {MODELS_DIR / 'lates]t.txt'}")
     return version
 
 

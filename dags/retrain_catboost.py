@@ -4,6 +4,7 @@
 """
 
 from datetime import datetime, timedelta
+import pendulum
 
 from airflow.decorators import dag, task
 
@@ -18,8 +19,11 @@ from pipeline.retrain.time_train_test_split import time_train_test_split
 @dag(
     dag_id="retrain_catboost",
     description="Раз в 5 минут сдвигает 3-месячное окно и переобучает CatBoost",
-    schedule="*/5 * * * *",
-    start_date=datetime(2026, 1, 1),
+    schedule="*/1 * * * *",
+    start_date=pendulum.datetime(
+        2026, 1, 1,
+        tz="Europe/Moscow",
+    ),
     catchup=False,
     max_active_runs=1,
     dagrun_timeout=timedelta(minutes=15),
